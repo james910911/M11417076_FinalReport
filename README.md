@@ -1,68 +1,70 @@
-# LIMU-BERT Reproduction
+# LIMU-BERT 重現實驗
 
-## Environment
+## 執行環境
 - Google Colab
 - Tesla T4 GPU
 - Python 3.12
 - PyTorch
 
-## Paper
+## 論文資訊
 ### LIMU-BERT: Unleashing the Potential of Unlabeled Data for IMU Sensing Applications
 
-Paper URL: https://arxiv.org/abs/2106.08265
+論文連結：  
+https://arxiv.org/abs/2106.08265
 
-Official GitHub: https://github.com/dapowan/LIMU-BERT-Public
+官方 GitHub：  
+https://github.com/dapowan/LIMU-BERT-Public
 
-## Dataset
+## 資料集
 - UCI HAR Dataset
 - Version: 20_120
 
-This project uses the UCI Human Activity Recognition (HAR) dataset for reproduction experiments.
+本專案使用 UCI Human Activity Recognition（HAR）資料集進行論文重現實驗。
 
-## Reproduction Process
+## 重現流程
 
-### 1. Clone Repository
+### 1. Clone 專案
 
     git clone https://github.com/dapowan/LIMU-BERT-Public.git
     cd LIMU-BERT-Public
 
-### 2. Install Requirements
+### 2. 安裝需求套件
 
     pip install -r requirements.txt
 
-### 3. Check GPU
+### 3. 確認 GPU
 
     import torch
     
     print(torch.cuda.is_available())
     print(torch.cuda.get_device_name(0))
 
-Expected output:
+預期輸出：
 
     True
     Tesla T4
 
-## Training Procedure
+## 訓練流程
 
-### Step 1 — Pretraining
+### Step 1 — 預訓練（Pretraining）
 
     python pretrain.py v1 uci 20_120 -s limu_v1_fast
 
-This step performs self-supervised pretraining for LIMU-BERT.
+此步驟進行 LIMU-BERT 的 self-supervised 預訓練。
 
-### Step 2 — Generate Embedding
+### Step 2 — 產生 Embedding
 
     python embedding.py v1 uci 20_120 -f limu_v1_fast
 
-This step generates feature embeddings from the pretrained model.
+此步驟利用預訓練模型產生特徵 embedding。
 
-### Step 3 — Train Classifier
+### Step 3 — 訓練分類器
 
     python classifier.py v2 uci 20_120 -f limu_v1_fast -s limu_gru_v1_fast -l 0
 
-This step trains the downstream HAR classifier.
+此步驟進行 HAR 下游分類任務訓練。
 
-## Reproduced Result
+## 重現結果
 
 ### Best Accuracy
 - 0.833 / 0.822 / 0.733
@@ -70,59 +72,58 @@ This step trains the downstream HAR classifier.
 ### Best F1-score
 - 0.796 / 0.782 / 0.715
 
-## Gap Analysis & Discussion
+## 差距分析與討論
 
-The reproduced result was lower than the original paper result.
+本次重現結果低於原論文結果，可能原因如下：
 
-Possible reasons include:
+- 預訓練 epoch 數量降低（100 而非原論文 3200）
+- GPU 環境不同
+- 前處理設定不同
+- random seed 差異
+- Google Colab 訓練時間限制
+- 套件版本差異
 
-- Reduced pretraining epochs (100 instead of 3200)
-- Different GPU environment
-- Different preprocessing settings
-- Random seed variation
-- Limited training time in Google Colab
-- Different library or dependency versions
+此外，原論文中部分超參數設定可能未完整公開，也可能影響最終重現結果。
 
-In addition, some hidden hyperparameter settings may not be fully described in the original paper.
+## 改善方向
 
-## Proposed Improvement
+未來可嘗試以下方向改善模型表現：
 
-Possible improvements include:
+- 增加 pretraining epochs
+- 使用更大型資料集進行 self-supervised learning
+- 加入 data augmentation
+- 調整 learning rate 與 batch size
+- 使用更高效能 GPU
+- 測試更多 HAR 資料集
 
-- Increase pretraining epochs
-- Use larger datasets for self-supervised learning
-- Apply data augmentation
-- Tune learning rate and batch size
-- Use stronger GPU hardware
-- Test on additional HAR datasets
+## 跨資料集討論
 
-## Cross-Dataset Discussion
+模型在不同 HAR 資料集上的表現可能下降，原因包含：
 
-The model performance may decrease when evaluated on different HAR datasets because:
+- 感測器配戴位置不同
+- 活動分布不同
+- 動作模式差異
+- 存在 domain shift 問題
 
-- Sensor placement may differ
-- Activity distributions are different
-- Motion patterns vary across datasets
-- Domain shift exists between datasets
+此結果顯示 cross-domain generalization 在 HAR 研究中具有重要性。
 
-This demonstrates the importance of cross-domain generalization in HAR research.
+## 心得
 
-## Reflection
-
-This project helped me understand:
+本次實驗讓我更了解：
 
 - Self-supervised learning
-- Transformer-based IMU sensing
-- Representation learning for HAR tasks
-- Reproduction workflow in deep learning research
-- The importance of reproducibility in neural network research
+- Transformer 在 IMU sensing 的應用
+- HAR 任務中的 representation learning
+- 深度學習論文重現流程
+- Neural Network 研究中的 reproducibility 重要性
 
-I also learned how different training settings can significantly affect final performance.
+同時也了解到不同訓練設定會明顯影響模型最終結果。
 
-## Files
+## 檔案說明
 
-- pretrain.py → self-supervised pretraining
-- embedding.py → embedding generation
-- classifier.py → downstream classification
-- training_result.png → reproduction result screenshot
-- LIMU_BERT_Reproduction.ipynb → Colab notebook
+- pretrain.py → self-supervised 預訓練
+- embedding.py → embedding 產生
+- classifier.py → 下游分類器訓練
+- training_result.png → 重現結果截圖
+- LIMU_BERT_Reproduction.ipynb → Colab Notebook
+- 
